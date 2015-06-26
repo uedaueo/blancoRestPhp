@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="BlancoRestPhp" default="build" basedir=".">
+	<property name="version" value="0.0.1" />
+
+	<property name="project" value="blancoRestPhp" />
+	<property name="product" value="blanco.restphp" />
+	<property name="project.zip" value="${project}-${version}-src.zip" />
+	<property name="project.main.jar" value="blancorestphp-${version}.jar" />
+
+	<property name="eclipse.dir" value="C:/eclipse.ve" />
+
+	<!-- Antタスク定義CSP用 2005.12.09版 -->
+	<taskdef name="blancoanttask" classname="blanco.anttask.task.BlancoAntTaskTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef name="blancoresourcebundle" classname="blanco.resourcebundle.task.BlancoResourceBundleTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+	<!-- Antタスク定義CSP用 2005.12.09版 -->
+	<taskdef name="blancometa2xmlprocess" classname="blanco.meta2xml.task.BlancoMeta2XmlProcessTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef name="blancoconstants" classname="blanco.constants.task.BlancoConstantsTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef name="blancowsdl" classname="blanco.wsdl.task.BlancoWsdlTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef name="blancovalueobject" classname="blanco.valueobject.task.BlancoValueObjectTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef name="blancosoapdotnetwsdl2telegramprocess" classname="blanco.soap.task.BlancoSoapDotNetWsdl2TelegramProcessTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef name="blancosoapdotnetwsdlexe" classname="blanco.soap.task.BlancoSoapDotNetWsdlExeTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+	<taskdef name="blancosoapdotnetwsdl2asmx" classname="blanco.soap.task.BlancoSoapDotNetWsdl2AsmxTask">
+		<classpath>
+			<fileset dir="lib" includes="*.jar" />
+			<fileset dir="lib.ant" includes="*.jar" />
+		</classpath>
+	</taskdef>
+
+	<target name="pack" depends="compile,jar">
+		<echo>packing project</echo>
+		<delete file="${project.zip}" />
+		<delete dir="bin" />
+		<delete dir="tmp/telegram" />
+		<delete dir="javadoc" />
+
+		<delete dir="tmp" />
+		<mkdir dir="tmp" />
+
+		<copy todir="lib.ant">
+			<fileset dir=".">
+				<include name="blancosoap-*.jar" />
+			</fileset>
+		</copy>
+
+		<zip destfile="${project.zip}">
+			<zipfileset dir="." prefix="${project}" excludes="${project.zip},**/*.class" />
+		</zip>
+
+	</target>
+
+	<target name="jar" depends="compile">
+		<echo>building jar</echo>
+
+		<delete file="${project.main.jar}" />
+		<jar destfile="${project.main.jar}">
+			<zipfileset dir="doc" prefix="doc" />
+			<zipfileset dir="bin" includes="**/*" />
+			<!-- Javaソースコードを取り込むようにします -->
+			<zipfileset dir="src" includes="**/*" prefix="src" />
+			<!-- Javaソースコードの取り込み -->
+			<zipfileset dir="blanco/main" includes="**/*.java" prefix="src" />
+			<!-- プロパティファイルを取り込みます。 -->
+			<zipfileset dir="blanco/main" includes="*.properties" />
+		</jar>
+	</target>
+
+	<target name="compile">
+		<delete dir="bin" />
+		<mkdir dir="bin" />
+		<javac srcdir="blanco/main" destdir="bin" debug="true" source="1.4" target="1.4" fork="true">
+			<classpath>
+				<!-- ワイルドカードで一括取り込み -->
+				<fileset dir="lib" includes="*.jar" />
+				<pathelement path="${eclipse.dir}/plugins/org.junit_3.8.1/junit.jar" />
+			</classpath>
+			<include name="**/*.java" />
+		</javac>
+		<javac srcdir="src/" destdir="bin" debug="true" source="1.4" target="1.4" fork="true">
+			<classpath>
+				<!-- ワイルドカードで一括取り込み -->
+				<fileset dir="lib" includes="*.jar" />
+				<pathelement path="${eclipse.dir}/plugins/org.junit_3.8.1/junit.jar" />
+			</classpath>
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<target name="meta">
+		<blancoresourcebundle metadir="meta/program" tmpdir="tmp" targetdir="blanco" commenttimestamp="false" failonmessageformaterror="false" />
+		<blancoanttask metadir="meta/program" tmpdir="tmp" targetdir="blanco" />
+		<blancoconstants metadir="meta/program" targetdir="blanco" />
+		<blancovalueobject metadir="meta/program" />
+
+		<blancowsdl metadir="meta/program" targetdir="blanco.wsdl" />
+		<blancosoapdotnetwsdl2telegramprocess metadir="blanco.wsdl" targetdir="blanco.cs" />
+		<!-- .NET Framework SDKが無いと動作しないものについては、この箇所からは除去しています。 -->
+	</target>
+
+	<!-- JavaDoc記述 2005.12.15版 -->
+	<target name="javadoc">
+		<echo>JavaDocを生成します。</echo>
+		<delete dir="javadoc" />
+		<javadoc destdir="javadoc">
+			<fileset dir="src" />
+			<fileset dir="blanco/main" />
+			<classpath>
+				<fileset dir="lib" includes="*.jar" />
+				<fileset dir="lib.ant" includes="*.jar" />
+			</classpath>
+		</javadoc>
+	</target>
+
+	<target name="generate.cs">
+		<echo>blancoSOAPDotNet生成</echo>
+
+		<blancowsdl metadir="meta/program" targetdir="blanco.wsdl" />
+		<blancosoapdotnetwsdl2telegramprocess metadir="blanco.wsdl" targetdir="blanco.cs" />
+
+		<blancosoapdotnetwsdl2asmx metadir="blanco.wsdl" />
+
+		<!-- blancosoapdotnetwsdlexeタスクは実行のために .NET Framework SDK 1.1が必要です。 -->
+		<blancosoapdotnetwsdlexe metadir="blanco.wsdl" targetdir="blanco.cs" dotnetsdkdir="D:\Program Files\Microsoft.NET\SDK\v1.1" />
+	</target>
+
+
+	<target name="build" depends="meta,compile,jar,pack">
+	</target>
+
+</project>
