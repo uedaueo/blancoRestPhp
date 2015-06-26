@@ -17,11 +17,11 @@ import javax.xml.transform.TransformerException;
 import blanco.soap.BlancoSoapWsdl2CsClass;
 
 /**
- * BlancoCsvのAntタスクです。
+ * BlancoRestPhpのAntタスクです。
  * 
- * @author IGA Tosiki
+ * @author tueda
  */
-public class BlancoSoapDotNetWsdl2TelegramProcessTask extends
+public class BlancoRestPhpTask extends
         AbstractBlancoRestPhpTask {
 
     /**
