@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<project name="BlancoRestPhp" default="build" basedir=".">
+<project name="BlancoRestPhpAntTask" default="build" basedir=".">
 	<property name="version" value="0.0.1" />
 
-	<property name="project" value="blancoRestPhp" />
-	<property name="project.lower" value="blancorestphp" />
+	<property name="project" value="blancoRestPhpAntTask" />
+	<property name="project.lower" value="blancorestphpanttask" />
 	<property name="project.zip" value="${project}-${version}-src.zip" />
-	<property name="project.main.jar" value="blancorestphp-${version}.jar" />
+	<property name="project.main.jar" value="blancorestphpanttask-${version}.jar" />
 
 	<property name="encoding" value="UTF-8" />
 	<!-- property name="eclipse.dir" value="C:/eclipse.ve" / -->
@@ -57,13 +57,6 @@
 	<!-- Antタスク定義 end -->
 
 	<!-- 自分自身のAntタスク。 -->
-	<taskdef name="blancorestphp" classname="blanco.restphp.task.BlancoRestPhpTask">
-		<classpath>
-			<fileset dir="lib" includes="*.jar" />
-			<fileset dir="lib.ant" includes="*.jar" />
-            <dirset dir="bin" />
-		</classpath>
-	</taskdef>
 
 	<target name="pack">
 		<echo>packing project</echo>
@@ -95,7 +88,7 @@
 		<echo>building jar</echo>
 
 		<!-- 定義書読込設定XMLファイル(blancoCalcParserが利用) をコピーします。 -->
-		<copy file="src/blanco/valueobjectphp/BlancoRestPhpMeta2Xml.xml" todir="bin/blanco/restphp" />
+		<copy file="src/blanco/restphp/BlancoRestPhpMeta2Xml.xml" todir="bin/blanco/restphp" />
 
 		<delete file="${project.main.jar}" />
 		<jar destfile="${project.main.jar}">
@@ -148,23 +141,9 @@
 		<blancovalueobjectphp metadir="meta/objects" targetdir="blanco.php" encoding="${encoding}" verbose="true" />
 
 		<!-- TODO: ここに自身のantタスクを追加してください。 -->
-        <copy file="src/blanco/restphp/BlancoRestPhpMeta2Xml.xml" todir="bin/blanco/restphp" />
-		<blancorestphp metadir="meta/api"  encoding="${encoding}" />
 	</target>
 
-	<target name="build" depends="meta,compile,jar,pack">
+	<target name="build" depends="meta,compile">
 	</target>
-
-    <target name="cleanblanco">
-        <delete dir="blanco" />
-        <delete dir="blanco.php" />
-    </target>
-
-    <target name="cleanjava">
-        <delete dir="bin" />
-        <delete dir="classes" />
-    </target>
-
-    <target name="clean" depends="cleanjava, cleanblanco" />
 
 </project>
