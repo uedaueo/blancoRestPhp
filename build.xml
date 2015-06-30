@@ -57,10 +57,11 @@
 	<!-- Antタスク定義 end -->
 
 	<!-- 自分自身のAntタスク。 -->
-	<taskdef name="blancovalueobjectphp" classname="blanco.valueobjectphp.task.BlancoValueObjectPhpTask">
+	<taskdef name="blancorestphp" classname="blanco.restphp.task.BlancoRestPhpTask">
 		<classpath>
 			<fileset dir="lib" includes="*.jar" />
 			<fileset dir="lib.ant" includes="*.jar" />
+			<dirset dir="classes" />
 		</classpath>
 	</taskdef>
 
@@ -142,10 +143,12 @@
 		<blancoresourcebundle metadir="meta/program" tmpdir="tmp" targetdir="blanco" commenttimestamp="false" failonmessageformaterror="false" encoding="${encoding}" />
 		<blancoanttask metadir="meta/program" tmpdir="tmp" targetdir="blanco" encoding="${encoding}" />
 		<blancoconstants metadir="meta/program" targetdir="blanco" encoding="${encoding}" />
-		<blancovalueobject metadir="meta/program"  encoding="${encoding}" />
-		<blancovalueobjectphp metadir="meta/program" targetdir="blanco.php" encoding="${encoding}" verbose="true" />
+		<blancometa2xml metadir="meta/program" encoding="${encoding}" />
+		<blancovalueobject metadir="meta/objects"  encoding="${encoding}" />
+		<blancovalueobjectphp metadir="meta/objects" targetdir="blanco.php" encoding="${encoding}" verbose="true" />
 
 		<!-- TODO: ここに自身のantタスクを追加してください。 -->
+		<blancorestphp metadir="meta/api"  encoding="${encoding}" />
 	</target>
 
 	<target name="build" depends="meta,compile,jar,pack">
