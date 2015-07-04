@@ -15,6 +15,7 @@ import java.io.IOException;
 import javax.xml.transform.TransformerException;
 
 import blanco.restphp.BlancoRestPhpConstants;
+import blanco.restphp.BlancoRestPhpXml2SourceFile;
 import blanco.restphp.resourcebundle.BlancoRestPhpResourceBundle;
 
 import blanco.restphp.BlancoRestPhpMeta2Xml;
@@ -53,19 +54,19 @@ public class BlancoRestPhpProcessImpl implements
                             + BlancoRestPhpConstants.TARGET_SUBDIRECTORY);
 
             // XML化された中間ファイルからソースコードを生成
-//            final File[] fileMeta2 = new File(input.getTmpdir()
-//                    + BlancoRestPhpConstants.TARGET_SUBDIRECTORY)
-//                    .listFiles();
-//            for (int index = 0; index < fileMeta2.length; index++) {
-//                if (fileMeta2[index].getName().endsWith(".xml") == false) {
-//                    continue;
-//                }
-//
-//                final BlancoRestPhpXml2SourceFile xml2source = new BlancoRestPhpXml2SourceFile();
-//                xml2source.setEncoding(input.getEncoding());
-//                xml2source.process(fileMeta2[index], "true".equals(input
-//                        .getNameAdjust()), new File(input.getTargetdir()));
-//            }
+            final File[] fileMeta2 = new File(input.getTmpdir()
+                    + BlancoRestPhpConstants.TARGET_SUBDIRECTORY)
+                    .listFiles();
+            for (int index = 0; index < fileMeta2.length; index++) {
+                if (fileMeta2[index].getName().endsWith(".xml") == false) {
+                    continue;
+                }
+
+                final BlancoRestPhpXml2SourceFile xml2source = new BlancoRestPhpXml2SourceFile();
+                xml2source.setEncoding(input.getEncoding());
+                xml2source.process(fileMeta2[index], "true".equals(input
+                        .getNameAdjust()), new File(input.getTargetdir()));
+            }
         } catch (IOException ex) {
             throw new IllegalArgumentException(ex.toString());
         } catch (TransformerException ex) {

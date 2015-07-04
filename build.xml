@@ -61,7 +61,7 @@
 		<classpath>
 			<fileset dir="lib" includes="*.jar" />
 			<fileset dir="lib.ant" includes="*.jar" />
-            <dirset dir="bin" />
+			<dirset dir="bin" />
 		</classpath>
 	</taskdef>
 
@@ -120,6 +120,7 @@
 			<classpath>
 				<!-- ワイルドカードで一括取り込み -->
 				<fileset dir="lib" includes="*.jar" />
+				<fileset dir="lib.ant" includes="*.jar" />
 				<!-- pathelement path="${eclipse.dir}/plugins/org.junit_3.8.2.v20080602-1318/junit.jar" / -->
 			</classpath>
 			<include name="**/*.java" />
@@ -144,7 +145,7 @@
 		<blancoanttask metadir="meta/program" tmpdir="tmp" targetdir="blanco" encoding="${encoding}" />
 		<blancoconstants metadir="meta/program" targetdir="blanco" encoding="${encoding}" />
 		<blancometa2xml metadir="meta/program" encoding="${encoding}" />
-		<blancovalueobject metadir="meta/objects"  encoding="${encoding}" />
+		<blancovalueobject metadir="meta/program"  encoding="${encoding}" />
 		<blancovalueobjectphp metadir="meta/objects" targetdir="blanco.php" encoding="${encoding}" verbose="true" />
 
 		<!-- TODO: ここに自身のantタスクを追加してください。 -->
