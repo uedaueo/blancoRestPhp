@@ -95,7 +95,7 @@
 		<echo>building jar</echo>
 
 		<!-- 定義書読込設定XMLファイル(blancoCalcParserが利用) をコピーします。 -->
-		<copy file="src/blanco/valueobjectphp/BlancoRestPhpMeta2Xml.xml" todir="bin/blanco/restphp" />
+		<copy file="src/blanco/restphp/BlancoRestPhpMeta2Xml.xml" todir="bin/blanco/restphp" />
 
 		<delete file="${project.main.jar}" />
 		<jar destfile="${project.main.jar}">
