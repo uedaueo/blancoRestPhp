@@ -15,6 +15,7 @@ import java.io.IOException;
 import javax.xml.transform.TransformerException;
 
 import blanco.restphp.BlancoRestPhpConstants;
+import blanco.restphp.BlancoRestPhpObjectsInfo;
 import blanco.restphp.BlancoRestPhpXml2SourceFile;
 import blanco.restphp.resourcebundle.BlancoRestPhpResourceBundle;
 
@@ -42,6 +43,14 @@ public class BlancoRestPhpProcessImpl implements
                 throw new IllegalArgumentException(fBundle
                         .getAnttaskErr001(input.getMetadir()));
             }
+
+            /*
+             * validator を作る時に使うために，
+             * ValueObject で既に定義されている（はずの）オブジェクトを取得しておく
+             */
+            final BlancoRestPhpObjectsInfo objectsInfo = new BlancoRestPhpObjectsInfo();
+            objectsInfo.setEncoding(input.getEncoding());
+            objectsInfo.process(input);
 
             // テンポラリディレクトリを作成。
             new File(input.getTmpdir()
