@@ -466,8 +466,15 @@ public class BlancoRestPhpXml2SourceFile {
         // メソッドの実装
         final List<String> listLine = cgExecutorMethod.getLineList();
 
-        listLine.add(BlancoCgLineUtil.getVariablePrefix(fTargetLang)
-                + "this->" + BlancoRestPhpConstants.BASE_EXECUTOR_METHOD + "()"
+        listLine.add(
+                BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "ret" + responseId + " = "
+                + BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "this->" + BlancoRestPhpConstants.API_PROCESS_METHOD
+                + "( " + BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "arg" + requestId + " )"
+                + BlancoCgLineUtil.getTerminator(fTargetLang));
+
+        listLine.add("\n");
+        listLine.add("return "
+                + BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "ret" + responseId
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
 
