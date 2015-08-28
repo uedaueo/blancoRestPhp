@@ -150,7 +150,7 @@
 
 		<!-- TODO: ここに自身のantタスクを追加してください。 -->
         <copy file="src/blanco/restphp/BlancoRestPhpMeta2Xml.xml" todir="bin/blanco/restphp" />
-		<blancorestphp metadir="meta/api" targetdir="blanco.php" encoding="${encoding}" />
+		<!-- blancorestphp metadir="meta/api" targetdir="blanco.php" encoding="${encoding}" / -->
 	</target>
 
 	<target name="build" depends="meta,compile,jar,pack">
@@ -160,6 +160,8 @@
         <delete dir="blanco" />
         <delete dir="blanco.php" />
 		<delete dir="tmp" />
+		<mkdir dir="blanco" />
+		<mkdir dir="blanco.php" />
     </target>
 
     <target name="cleanjava">
