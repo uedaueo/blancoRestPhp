@@ -506,6 +506,16 @@ public class BlancoRestPhpXml2SourceFile {
         fCgClass = fCgFactory.createClass(argStructure.getName(),
                 BlancoStringUtil.null2Blank(argStructure
                         .getDescription()));
+
+        // ApiTelegram クラスを継承
+        BlancoCgType fCgType = new BlancoCgType();
+        fCgType.setName(BlancoRestPhpConstants.API_TELEGRAM_BASE);
+        fCgClass.setExtendClassList(new ArrayList<>());
+        fCgClass.getExtendClassList().add(fCgType);
+
+        // abstrac フラグをセット
+        fCgClass.setAbstract(true);
+
         fCgSourceFile.getClassList().add(fCgClass);
 
         if (argStructure.getDescription() != null) {
