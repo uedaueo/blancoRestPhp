@@ -414,6 +414,9 @@ public class BlancoRestPhpXml2SourceFile {
         // base class からの abstract method の実装
         createExecuteMethod(argStructure);
 
+        // required 文を出力しない ... 将来的には xls で指定するように？
+        fCgSourceFile.setIsImport(false);
+
         BlancoCgTransformerFactory.getSourceTransformer(fTargetLang).transform(
                 fCgSourceFile, fileBlancoMain);
     }
@@ -421,11 +424,12 @@ public class BlancoRestPhpXml2SourceFile {
     private void createAbstractMethod(BlancoRestPhpTelegramProcess argStructure) {
 
         // Initializer の定義
-        final BlancoCgMethod cgInitializerMethod = fCgFactory.createMethod(
-                BlancoRestPhpConstants.API_INITIALIZER_METHOD, fBundle.getXml2sourceFileInitializerDescription());
-        fCgClass.getMethodList().add(cgInitializerMethod);
-        cgInitializerMethod.setAccess("protected");
-        cgInitializerMethod.setAbstract(true);
+//        final BlancoCgMethod cgInitializerMethod = fCgFactory.createMethod(
+//                BlancoRestPhpConstants.API_INITIALIZER_METHOD, fBundle.getXml2sourceFileInitializerDescription());
+//        fCgClass.getMethodList().add(cgInitializerMethod);
+//        cgInitializerMethod.setAccess("protected");
+//        cgInitializerMethod.setAbstract(true);
+        // ApiBase で固定的に定義
 
         // Processor の定義
         final BlancoCgMethod cgProcessorMethod = fCgFactory.createMethod(
@@ -510,6 +514,9 @@ public class BlancoRestPhpXml2SourceFile {
         }
 
         expandValueObject(argStructure);
+
+        // required 文を出力しない ... 将来的には xls で指定するように？
+        fCgSourceFile.setIsImport(false);
 
         BlancoCgTransformerFactory.getSourceTransformer(fTargetLang).transform(
                 fCgSourceFile, fileBlancoMain);

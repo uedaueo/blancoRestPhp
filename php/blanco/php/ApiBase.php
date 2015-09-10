@@ -9,14 +9,11 @@
 namespace blanco\php;
 
 
-class ApiBase
-{
+abstract class ApiBase {
 
-    URL_HOGEHOGE....
+    protected abstract function execute();
 
-    validate($requestObj);
+    public static function call() {
 
-    return $error;
-
-    $response = $this->execute($request);
+    }
 }
