@@ -425,39 +425,20 @@ public class BlancoRestPhpXml2SourceFile {
                     .getDescription());
         }
 
-        // フィールドの実装
-        createClassField(argStructure);
-
         // API実装クラスで実装させる abstract method の定義
         createAbstractMethod(argStructure);
 
         // base class からの abstract method の実装
         createExecuteMethod(argStructure, argListTelegrams);
 
+        // isAuthenticationRequired メソッドの上書き
+        overrideAuthenticationRequired(argStructure);
+
         // required 文を出力しない ... 将来的には xls で指定するように？
         fCgSourceFile.setIsImport(false);
 
         BlancoCgTransformerFactory.getSourceTransformer(fTargetLang).transform(
                 fCgSourceFile, fileBlancoMain);
-    }
-
-    private void createClassField(BlancoRestPhpTelegramProcess argStructure) {
-        String fieldName = BlancoRestPhpConstants.API_AUTHENTICATION_REQUIRED;
-
-        final BlancoCgField cgField = fCgFactory.createField(fieldName,
-                "java.lang.Boolean", fBundle.getXml2sourceFileAuthflagLangdoc());
-        fCgClass.getFieldList().add(cgField);
-        cgField.setAccess("protected");
-
-        cgField.setDescription(fBundle.getXml2sourceFileFieldName(fieldName));
-        cgField.getLangDoc().getDescriptionList().add(
-                fBundle.getXml2sourceFileFieldType("java.lang.Boolean"));
-
-        cgField.setDefault("true");
-        if (argStructure.getNoAuthentication()) {
-            cgField.setDefault("false");
-        }
-
     }
 
     private void createAbstractMethod(BlancoRestPhpTelegramProcess argStructure) {
@@ -530,6 +511,26 @@ public class BlancoRestPhpXml2SourceFile {
         listLine.add("\n");
         listLine.add("return "
                 + BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "ret" + responseId
+                + BlancoCgLineUtil.getTerminator(fTargetLang));
+    }
+
+    private void overrideAuthenticationRequired(BlancoRestPhpTelegramProcess argStructure) {
+        String methodName = BlancoRestPhpConstants.API_AUTHENTICATION_REQUIRED;
+
+        final BlancoCgMethod cgAuthenticationRequiredMethod = fCgFactory.createMethod(
+                methodName, fBundle.getXml2sourceFileAuthflagLangdoc());
+        fCgClass.getMethodList().add(cgAuthenticationRequiredMethod);
+        cgAuthenticationRequiredMethod.setAccess("protected");
+
+        // メソッドの実装
+        final List<String> listLine = cgAuthenticationRequiredMethod.getLineList();
+
+        String retval = "true";
+        if (argStructure.getNoAuthentication()) {
+            retval = "false";
+        }
+
+        listLine.add("return " + retval
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
 
