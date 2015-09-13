@@ -14,6 +14,9 @@
                 <propertykey name="type" waitX="2">
                     <value>電文種類</value>
                 </propertykey>
+                <propertykey name="superClass" waitX="2">
+                    <value>電文の親クラス</value>
+                </propertykey>
                 <propertykey name="namespace" waitX="2">
                     <value>名前空間</value>
                 </propertykey>
@@ -87,6 +90,9 @@
                 </propertykey>
                 <propertykey name="telegramResponseId" waitX="1">
                     <value>応答電文ID</value>
+                </propertykey>
+                <propertykey name="noAuthentication" waitX="1">
+                    <value>認証が不要なAPI</value>
                 </propertykey>
                 <propertykey name="webServiceId" waitX="1">
                     <value>ウェブサービスID</value>

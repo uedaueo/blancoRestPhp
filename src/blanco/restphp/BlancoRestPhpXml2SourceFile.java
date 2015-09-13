@@ -72,6 +72,15 @@ public class BlancoRestPhpXml2SourceFile {
     private boolean fNameAdjust = true;
 
     /**
+     * 要求電文のベースクラス
+     */
+    private String inputTelegramBase = null;
+    /**
+     * 応答電文のベースクラス
+     */
+    private String outputTelegramBase = null;
+
+    /**
      * 自動生成するソースファイルの文字エンコーディング。
      */
     private String fEncoding = null;
@@ -192,6 +201,11 @@ public class BlancoRestPhpXml2SourceFile {
         structure.setNamespace(BlancoXmlBindingUtil.getTextContent(
                 argElementCommon, "namespace"));
 
+        String strNoAuthenticationRequired = BlancoXmlBindingUtil.getTextContent(
+                argElementCommon, "noAuthentication");
+        // System.out.println("#### noAuth = " + strNoAuthenticationRequired);
+        structure.setNoAuthentication("YES".equalsIgnoreCase(strNoAuthenticationRequired));
+
         return structure;
     }
 
@@ -278,7 +292,10 @@ public class BlancoRestPhpXml2SourceFile {
                 argElementCommon, "namespace"));
 
         processTelegram.setTelegramType(BlancoXmlBindingUtil.getTextContent(
-                argElementCommon, "telegramType"));
+                argElementCommon, "type"));
+
+        processTelegram.setTelegramSuperClass(BlancoXmlBindingUtil.getTextContent(
+                argElementCommon, "superClass"));
 
         if (argElementList == null) {
             return null;
@@ -408,17 +425,39 @@ public class BlancoRestPhpXml2SourceFile {
                     .getDescription());
         }
 
+        // フィールドの実装
+        createClassField(argStructure);
+
         // API実装クラスで実装させる abstract method の定義
         createAbstractMethod(argStructure);
 
         // base class からの abstract method の実装
-        createExecuteMethod(argStructure);
+        createExecuteMethod(argStructure, argListTelegrams);
 
         // required 文を出力しない ... 将来的には xls で指定するように？
         fCgSourceFile.setIsImport(false);
 
         BlancoCgTransformerFactory.getSourceTransformer(fTargetLang).transform(
                 fCgSourceFile, fileBlancoMain);
+    }
+
+    private void createClassField(BlancoRestPhpTelegramProcess argStructure) {
+        String fieldName = BlancoRestPhpConstants.API_AUTHENTICATION_REQUIRED;
+
+        final BlancoCgField cgField = fCgFactory.createField(fieldName,
+                "java.lang.Boolean", fBundle.getXml2sourceFileAuthflagLangdoc());
+        fCgClass.getFieldList().add(cgField);
+        cgField.setAccess("protected");
+
+        cgField.setDescription(fBundle.getXml2sourceFileFieldName(fieldName));
+        cgField.getLangDoc().getDescriptionList().add(
+                fBundle.getXml2sourceFileFieldType("java.lang.Boolean"));
+
+        cgField.setDefault("true");
+        if (argStructure.getNoAuthentication()) {
+            cgField.setDefault("false");
+        }
+
     }
 
     private void createAbstractMethod(BlancoRestPhpTelegramProcess argStructure) {
@@ -450,19 +489,31 @@ public class BlancoRestPhpXml2SourceFile {
 
     }
 
-    private void createExecuteMethod(BlancoRestPhpTelegramProcess argStructure) {
+    private void createExecuteMethod(BlancoRestPhpTelegramProcess argStructure, List<BlancoRestPhpTelegram>  argListTelegrams) {
         final BlancoCgMethod cgExecutorMethod = fCgFactory.createMethod(
                 BlancoRestPhpConstants.BASE_EXECUTOR_METHOD, fBundle.getXml2sourceFileExecutorDescription());
         fCgClass.getMethodList().add(cgExecutorMethod);
         cgExecutorMethod.setAccess("protected");
 
+        /*
+         * 型チェックを通す為にSuperClassがある場合はそれを使います
+         */
         String requestId = argStructure.getRequestId();
         String responseId = argStructure.getResponseId();
+        for (BlancoRestPhpTelegram telegram : argListTelegrams) {
+//            System.out.println("### type = " + telegram.getTelegramType());
+            if ("Input".equals(telegram.getTelegramType())) {
+                requestId = telegram.getTelegramSuperClass();
+            }
+            if ("Output".equals(telegram.getTelegramType())) {
+                responseId = telegram.getTelegramSuperClass();
+            }
+        }
 
         cgExecutorMethod.getParameterList().add(
                 fCgFactory.createParameter("arg" + requestId, requestId,
                         fBundle
-                        .getXml2sourceFileExecutorArgLangdoc()));
+                                .getXml2sourceFileExecutorArgLangdoc()));
 
         cgExecutorMethod.setReturn(fCgFactory.createReturn(responseId,
                 fBundle.getXml2sourceFileExecutorReturnLangdoc()));
@@ -472,9 +523,9 @@ public class BlancoRestPhpXml2SourceFile {
 
         listLine.add(
                 BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "ret" + responseId + " = "
-                + BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "this->" + BlancoRestPhpConstants.API_PROCESS_METHOD
-                + "( " + BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "arg" + requestId + " )"
-                + BlancoCgLineUtil.getTerminator(fTargetLang));
+                        + BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "this->" + BlancoRestPhpConstants.API_PROCESS_METHOD
+                        + "( " + BlancoCgLineUtil.getVariablePrefix(fTargetLang) + "arg" + requestId + " )"
+                        + BlancoCgLineUtil.getTerminator(fTargetLang));
 
         listLine.add("\n");
         listLine.add("return "
@@ -508,13 +559,17 @@ public class BlancoRestPhpXml2SourceFile {
                         .getDescription()));
 
         // ApiTelegram クラスを継承
-        BlancoCgType fCgType = new BlancoCgType();
-        fCgType.setName(BlancoRestPhpConstants.API_TELEGRAM_BASE);
-        fCgClass.setExtendClassList(new ArrayList<>());
-        fCgClass.getExtendClassList().add(fCgType);
+        String telegramBase = argStructure.getTelegramSuperClass();
+        if (telegramBase != null) {
+            BlancoCgType fCgType = new BlancoCgType();
+            fCgType.setName(telegramBase);
 
-        // abstrac フラグをセット
-        fCgClass.setAbstract(true);
+            fCgClass.setExtendClassList(new ArrayList<>());
+            fCgClass.getExtendClassList().add(fCgType);
+
+            // abstrac フラグをセット
+            fCgClass.setAbstract(true);
+        }
 
         fCgSourceFile.getClassList().add(fCgClass);
 
