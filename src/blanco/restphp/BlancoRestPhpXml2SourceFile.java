@@ -568,8 +568,6 @@ public class BlancoRestPhpXml2SourceFile {
             fCgClass.setExtendClassList(new ArrayList<>());
             fCgClass.getExtendClassList().add(fCgType);
 
-            // abstrac フラグをセット
-            fCgClass.setAbstract(true);
         }
 
         fCgSourceFile.getClassList().add(fCgClass);
