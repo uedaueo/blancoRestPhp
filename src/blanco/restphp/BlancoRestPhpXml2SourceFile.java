@@ -434,6 +434,12 @@ public class BlancoRestPhpXml2SourceFile {
         // isAuthenticationRequired メソッドの上書き
         overrideAuthenticationRequired(argStructure);
 
+        // RequestId 名を取得する メソッド
+        createRequestIdMethod(argStructure);
+
+        // ResponseId 名を取得する メソッド
+        createResponseIdMethod(argStructure);
+
         // required 文を出力しない ... 将来的には xls で指定するように？
         fCgSourceFile.setIsImport(false);
 
@@ -518,7 +524,7 @@ public class BlancoRestPhpXml2SourceFile {
         String methodName = BlancoRestPhpConstants.API_AUTHENTICATION_REQUIRED;
 
         final BlancoCgMethod cgAuthenticationRequiredMethod = fCgFactory.createMethod(
-                methodName, fBundle.getXml2sourceFileAuthflagLangdoc());
+                methodName, fBundle.getXml2sourceFileAuthflagDescription());
         fCgClass.getMethodList().add(cgAuthenticationRequiredMethod);
         cgAuthenticationRequiredMethod.setAccess("protected");
 
@@ -531,6 +537,38 @@ public class BlancoRestPhpXml2SourceFile {
         }
 
         listLine.add("return " + retval
+                + BlancoCgLineUtil.getTerminator(fTargetLang));
+    }
+
+    private void createRequestIdMethod(BlancoRestPhpTelegramProcess argStructure) {
+        String methodName = BlancoRestPhpConstants.API_REQUESTID_METHOD;
+
+        final BlancoCgMethod cgResponseIdMethod = fCgFactory.createMethod(
+                methodName, fBundle.getXml2sourceFileRequestidDesctiption());
+        fCgClass.getMethodList().add(cgResponseIdMethod);
+        cgResponseIdMethod.setAccess("protected");
+
+        // メソッドの実装
+        final List<String> listLine = cgResponseIdMethod.getLineList();
+
+
+        listLine.add("return " + "\"" + argStructure.getRequestId() + "\""
+                + BlancoCgLineUtil.getTerminator(fTargetLang));
+    }
+
+    private void createResponseIdMethod(BlancoRestPhpTelegramProcess argStructure) {
+        String methodName = BlancoRestPhpConstants.API_RESPONSE_METHOD;
+
+        final BlancoCgMethod cgResponseIdMethod = fCgFactory.createMethod(
+                methodName, fBundle.getXml2sourceFileRequestidDesctiption());
+        fCgClass.getMethodList().add(cgResponseIdMethod);
+        cgResponseIdMethod.setAccess("protected");
+
+        // メソッドの実装
+        final List<String> listLine = cgResponseIdMethod.getLineList();
+
+
+        listLine.add("return " + "\"" + argStructure.getResponseId() + "\""
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
 
