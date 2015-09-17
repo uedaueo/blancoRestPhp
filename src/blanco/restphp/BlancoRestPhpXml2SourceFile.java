@@ -643,6 +643,8 @@ public class BlancoRestPhpXml2SourceFile {
             expandMethodSet(argProcessStructure, fieldLook);
 
             expandMethodGet(argProcessStructure, fieldLook);
+
+            expandMethodType(argProcessStructure, fieldLook);
         }
 
         expandMethodToString(argProcessStructure);
@@ -753,6 +755,46 @@ public class BlancoRestPhpXml2SourceFile {
                 .add("return "
                         + BlancoCgLineUtil.getVariablePrefix(fTargetLang)
                         + "this->" + "f" + fieldName
+                        + BlancoCgLineUtil.getTerminator(fTargetLang));
+    }
+
+    /**
+     * typeメソッドを展開します
+     *
+     * @param argProcessStructure
+     * @param fieldLook
+     */
+    private void expandMethodType(
+            final BlancoRestPhpTelegram argProcessStructure,
+            final BlancoRestPhpTelegramField fieldLook) {
+        String fieldName = fieldLook.getName();
+        if (fNameAdjust) {
+            fieldName = BlancoNameAdjuster.toClassName(fieldName);
+        }
+
+        final BlancoCgMethod cgMethod = fCgFactory.createMethod("type"
+                + fieldName, fBundle.getXml2sourceFileGetLangdoc01(fieldLook
+                .getName()));
+        fCgClass.getMethodList().add(cgMethod);
+        cgMethod.setAccess("public");
+
+        cgMethod.getLangDoc().getDescriptionList().add(
+                fBundle.getXml2sourceFileTypeLangdoc02(fieldLook.getFieldType()));
+
+        cgMethod.setReturn(fCgFactory.createReturn(fieldLook.getFieldType(), fBundle
+                .getXml2sourceFileTypeReturnLangdoc(fieldLook.getName())));
+
+        if (BlancoStringUtil.null2Blank(fieldLook.getDescription()).length() > 0) {
+            cgMethod.getLangDoc().getDescriptionList().add(
+                    fieldLook.getDescription());
+        }
+
+        // メソッドの実装
+        final List<String> listLine = cgMethod.getLineList();
+
+        listLine
+                .add("return "
+                        + "\"" + fieldLook.getFieldType() + "\""
                         + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
 
