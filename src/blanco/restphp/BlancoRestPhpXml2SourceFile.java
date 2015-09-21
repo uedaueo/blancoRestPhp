@@ -777,6 +777,7 @@ public class BlancoRestPhpXml2SourceFile {
                 .getName()));
         fCgClass.getMethodList().add(cgMethod);
         cgMethod.setAccess("public");
+        cgMethod.setStatic(true);
 
         cgMethod.getLangDoc().getDescriptionList().add(
                 fBundle.getXml2sourceFileTypeLangdoc02(fieldLook.getFieldType()));
