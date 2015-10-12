@@ -345,6 +345,13 @@ public class BlancoRestPhpXml2SourceFile {
                 continue;
             }
 
+            field.setFieldGeneric(BlancoXmlBindingUtil.getTextContent(elementField,
+                    "fieldGeneric"));
+            if (BlancoStringUtil.null2Blank(field.getFieldGeneric()).length() != 0) {
+                /* debug */
+                System.out.println("/* tueda */ generic : " + field.getFieldGeneric() + ", type : " + field.getFieldType());
+            }
+
             field.setDescription(BlancoXmlBindingUtil.getTextContent(
                     elementField, "description"));
 
@@ -645,6 +652,8 @@ public class BlancoRestPhpXml2SourceFile {
             expandMethodGet(argProcessStructure, fieldLook);
 
             expandMethodType(argProcessStructure, fieldLook);
+
+            expandMethodGeneric(argProcessStructure, fieldLook);
         }
 
         expandMethodToString(argProcessStructure);
@@ -796,6 +805,47 @@ public class BlancoRestPhpXml2SourceFile {
         listLine
                 .add("return "
                         + "\"" + fieldLook.getFieldType() + "\""
+                        + BlancoCgLineUtil.getTerminator(fTargetLang));
+    }
+
+    private void expandMethodGeneric(
+            final BlancoRestPhpTelegram argProcessStructure,
+            final BlancoRestPhpTelegramField fieldLook) {
+        String fieldName = fieldLook.getName();
+        String fieldGeneric = fieldLook.getFieldGeneric();
+
+        if (BlancoStringUtil.null2Blank(fieldGeneric).length() == 0) {
+            return;
+        }
+
+        if (fNameAdjust) {
+            fieldName = BlancoNameAdjuster.toClassName(fieldName);
+        }
+
+        final BlancoCgMethod cgMethod = fCgFactory.createMethod("generic"
+                + fieldName, fBundle.getXml2sourceFileGetLangdoc01(fieldLook
+                .getName()));
+        fCgClass.getMethodList().add(cgMethod);
+        cgMethod.setAccess("public");
+        cgMethod.setStatic(true);
+
+        cgMethod.getLangDoc().getDescriptionList().add(
+                fBundle.getXml2sourceFileTypeLangdoc02(fieldGeneric));
+
+        cgMethod.setReturn(fCgFactory.createReturn(fieldGeneric, fBundle
+                .getXml2sourceFileTypeReturnLangdoc(fieldLook.getName())));
+
+        if (BlancoStringUtil.null2Blank(fieldLook.getDescription()).length() > 0) {
+            cgMethod.getLangDoc().getDescriptionList().add(
+                    fieldLook.getDescription());
+        }
+
+        // メソッドの実装
+        final List<String> listLine = cgMethod.getLineList();
+
+        listLine
+                .add("return "
+                        + "\"" + fieldLook.getFieldGeneric() + "\""
                         + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
 
