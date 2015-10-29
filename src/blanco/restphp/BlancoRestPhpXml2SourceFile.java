@@ -419,7 +419,7 @@ public class BlancoRestPhpXml2SourceFile {
         // ApiBase クラスを継承
         BlancoCgType fCgType = new BlancoCgType();
         fCgType.setName(BlancoRestPhpConstants.BASE_CLASS);
-        fCgClass.setExtendClassList(new ArrayList<>());
+        fCgClass.setExtendClassList(new ArrayList<BlancoCgType>());
         fCgClass.getExtendClassList().add(fCgType);
 
         // abstrac フラグをセット
@@ -610,7 +610,7 @@ public class BlancoRestPhpXml2SourceFile {
             BlancoCgType fCgType = new BlancoCgType();
             fCgType.setName(telegramBase);
 
-            fCgClass.setExtendClassList(new ArrayList<>());
+            fCgClass.setExtendClassList(new ArrayList<BlancoCgType>());
             fCgClass.getExtendClassList().add(fCgType);
 
         }
