@@ -670,16 +670,20 @@ public class BlancoRestPhpXml2SourceFile {
             final BlancoRestPhpTelegram argProcessStructure) {
 
         String strMinLength = "";
-
         String strMaxLength = "";
-
         String strMinInclusive = "";
-
         String strMaxInclusive = "";
-
         String strPattern = "";
-
         String strFieldRequired = "";
+
+        boolean isMinLengthLoop = false;
+        boolean isMaxLengthLoop = false;
+        boolean isMinInclusiveLoop = false;
+        boolean isMaxInclusiveLoop = false;
+        boolean isPatternLoop = false;
+        boolean isFieldRequiredLoop = false;
+
+        String strIndentBlank = "        ";
 
         for (int indexField = 0; indexField < argProcessStructure
                 .getListField().size(); indexField++) {
@@ -691,46 +695,58 @@ public class BlancoRestPhpXml2SourceFile {
 
             //Min長 後に出力する為、保持します。
             if (fieldLook.getMinLength() != null) {
-
-                strMinLength += "'" + fieldName + "' => '" + fieldLook.getMinLength() + "',";
-
+                if (isMinLengthLoop) {
+                    strMinLength += ",\n" + strIndentBlank;
+                }
+                strMinLength += "'" + fieldName + "' => '" + fieldLook.getMinLength() + "'";
+                isMinLengthLoop = true;
             }
 
             //Max長 後に出力する為、保持します。
             if (fieldLook.getMaxLength() != null) {
-
-                strMaxLength += "'" + fieldName + "' => '" + fieldLook.getMaxLength() + "',";
-
+                if (isMaxLengthLoop) {
+                    strMaxLength += ",\n" + strIndentBlank;
+                }
+                strMaxLength += "'" + fieldName + "' => '" + fieldLook.getMaxLength() + "'";
+                isMaxLengthLoop = true;
             }
 
             //Min値 後に出力する為、保持します。
             if (fieldLook.getMinInclusive() != null) {
-
-                strMinInclusive += "'" + fieldName + "' => " + fieldLook.getMinInclusive() + ",";
-
+                if (isMinInclusiveLoop) {
+                    strMinInclusive += ",\n" + strIndentBlank;
+                }
+                strMinInclusive += "'" + fieldName + "' => " + fieldLook.getMinInclusive();
+                isMinInclusiveLoop = true;
             }
 
             //Max値 後に出力する為、保持します。
             if (fieldLook.getMaxInclusive() != null) {
-
-                strMaxInclusive += "'" + fieldName + "' => " + fieldLook.getMaxInclusive() + ",";
-
+                if (isMaxInclusiveLoop) {
+                    strMaxInclusive += ",\n" + strIndentBlank;
+                }
+                strMaxInclusive += "'" + fieldName + "' => " + fieldLook.getMaxInclusive();
+                isMaxInclusiveLoop = true;
             }
 
             //正規表現 後に出力する為、保持します。
             if (fieldLook.getPattern() != null) {
-
-                strPattern += "'" + fieldName + "' => '" + fieldLook.getPattern() + "',";
-
+                if (isPatternLoop) {
+                    strPattern += ",\n" + strIndentBlank;
+                }
+                strPattern += "'" + fieldName + "' => '" + fieldLook.getPattern()  + "'";
+                isPatternLoop = true;
             }
 
             //必須 後に出力する為、保持します。
             if (fieldLook.getFieldRequired() != null) {
-
                 if (fieldLook.getFieldRequired() == true){
-                    strFieldRequired += "'" + fieldName + "' => 'YES',";
+                    if (isFieldRequiredLoop) {
+                        strFieldRequired += ",\n" + strIndentBlank;
+                    }
+                    strFieldRequired += "'" + fieldName + "' => 'YES'";
                 }
-
+                isFieldRequiredLoop = true;
             }
 
         }
@@ -814,6 +830,8 @@ public class BlancoRestPhpXml2SourceFile {
             String methodNam,
             String argMethodDescription) {
 
+        String strIndentBlank = "        ";
+
         //プロパティ部分
         final BlancoCgField cgField = fCgFactory.createField(argName ,
                 "array", "");
@@ -823,7 +841,7 @@ public class BlancoRestPhpXml2SourceFile {
         cgField.getLangDoc().getDescriptionList().add(
                 argFieldDescription);
 
-        cgField.setDefault("array(" + strStackValue +")");
+        cgField.setDefault("array(\n" + strIndentBlank + strStackValue +")");
 
         //メソッド部分
         final BlancoCgMethod cgMethod = fCgFactory.createMethod(methodNam,argMethodDescription
