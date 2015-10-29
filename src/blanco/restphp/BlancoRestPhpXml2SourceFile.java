@@ -567,7 +567,7 @@ public class BlancoRestPhpXml2SourceFile {
         String methodName = BlancoRestPhpConstants.API_RESPONSE_METHOD;
 
         final BlancoCgMethod cgResponseIdMethod = fCgFactory.createMethod(
-                methodName, fBundle.getXml2sourceFileRequestidDesctiption());
+                methodName, fBundle.getXml2sourceFileResponseidDescription());
         fCgClass.getMethodList().add(cgResponseIdMethod);
         cgResponseIdMethod.setAccess("protected");
 
