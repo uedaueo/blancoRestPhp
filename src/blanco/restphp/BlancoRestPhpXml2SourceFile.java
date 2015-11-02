@@ -691,7 +691,12 @@ public class BlancoRestPhpXml2SourceFile {
                     .getListField().get(indexField);
 
             String fieldName = fieldLook.getName();
-            System.out.println("ooq  name = " +  fieldName);
+            if (fNameAdjust) {
+                fieldName = BlancoNameAdjuster.toParameterName(fieldName);
+
+            }
+
+            //System.out.println("ooq  name = " +  fieldName);
 
             //Min長 後に出力する為、保持します。
             if (fieldLook.getMinLength() != null) {
