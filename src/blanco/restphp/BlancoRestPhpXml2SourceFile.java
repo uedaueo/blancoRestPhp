@@ -419,7 +419,7 @@ public class BlancoRestPhpXml2SourceFile {
         // ApiBase クラスを継承
         BlancoCgType fCgType = new BlancoCgType();
         fCgType.setName(BlancoRestPhpConstants.BASE_CLASS);
-        fCgClass.setExtendClassList(new ArrayList<>());
+        fCgClass.setExtendClassList(new ArrayList<BlancoCgType>());
         fCgClass.getExtendClassList().add(fCgType);
 
         // abstrac フラグをセット
@@ -567,7 +567,7 @@ public class BlancoRestPhpXml2SourceFile {
         String methodName = BlancoRestPhpConstants.API_RESPONSE_METHOD;
 
         final BlancoCgMethod cgResponseIdMethod = fCgFactory.createMethod(
-                methodName, fBundle.getXml2sourceFileRequestidDesctiption());
+                methodName, fBundle.getXml2sourceFileResponseidDescription());
         fCgClass.getMethodList().add(cgResponseIdMethod);
         cgResponseIdMethod.setAccess("protected");
 
@@ -610,7 +610,7 @@ public class BlancoRestPhpXml2SourceFile {
             BlancoCgType fCgType = new BlancoCgType();
             fCgType.setName(telegramBase);
 
-            fCgClass.setExtendClassList(new ArrayList<>());
+            fCgClass.setExtendClassList(new ArrayList<BlancoCgType>());
             fCgClass.getExtendClassList().add(fCgType);
 
         }
@@ -656,7 +656,218 @@ public class BlancoRestPhpXml2SourceFile {
             expandMethodGeneric(argProcessStructure, fieldLook);
         }
 
+        //バリデート関係
+        expandMethodValidate(argProcessStructure);
+
         expandMethodToString(argProcessStructure);
+    }
+
+    /**
+     * バリデートフィールドを展開します。
+     *
+     */
+    private void expandMethodValidate(
+            final BlancoRestPhpTelegram argProcessStructure) {
+
+        String strMinLength = "";
+        String strMaxLength = "";
+        String strMinInclusive = "";
+        String strMaxInclusive = "";
+        String strPattern = "";
+        String strFieldRequired = "";
+
+        boolean isMinLengthLoop = false;
+        boolean isMaxLengthLoop = false;
+        boolean isMinInclusiveLoop = false;
+        boolean isMaxInclusiveLoop = false;
+        boolean isPatternLoop = false;
+        boolean isFieldRequiredLoop = false;
+
+        String strIndentBlank = "        ";
+
+        for (int indexField = 0; indexField < argProcessStructure
+                .getListField().size(); indexField++) {
+            final BlancoRestPhpTelegramField fieldLook = argProcessStructure
+                    .getListField().get(indexField);
+
+            String fieldName = fieldLook.getName();
+            if (fNameAdjust) {
+                fieldName = BlancoNameAdjuster.toParameterName(fieldName);
+
+            }
+
+            //System.out.println("ooq  name = " +  fieldName);
+
+            //Min長 後に出力する為、保持します。
+            if (fieldLook.getMinLength() != null) {
+                if (isMinLengthLoop) {
+                    strMinLength += ",\n" + strIndentBlank;
+                }
+                strMinLength += "'" + fieldName + "' => '" + fieldLook.getMinLength() + "'";
+                isMinLengthLoop = true;
+            }
+
+            //Max長 後に出力する為、保持します。
+            if (fieldLook.getMaxLength() != null) {
+                if (isMaxLengthLoop) {
+                    strMaxLength += ",\n" + strIndentBlank;
+                }
+                strMaxLength += "'" + fieldName + "' => '" + fieldLook.getMaxLength() + "'";
+                isMaxLengthLoop = true;
+            }
+
+            //Min値 後に出力する為、保持します。
+            if (fieldLook.getMinInclusive() != null) {
+                if (isMinInclusiveLoop) {
+                    strMinInclusive += ",\n" + strIndentBlank;
+                }
+                strMinInclusive += "'" + fieldName + "' => " + fieldLook.getMinInclusive();
+                isMinInclusiveLoop = true;
+            }
+
+            //Max値 後に出力する為、保持します。
+            if (fieldLook.getMaxInclusive() != null) {
+                if (isMaxInclusiveLoop) {
+                    strMaxInclusive += ",\n" + strIndentBlank;
+                }
+                strMaxInclusive += "'" + fieldName + "' => " + fieldLook.getMaxInclusive();
+                isMaxInclusiveLoop = true;
+            }
+
+            //正規表現 後に出力する為、保持します。
+            if (fieldLook.getPattern() != null) {
+                if (isPatternLoop) {
+                    strPattern += ",\n" + strIndentBlank;
+                }
+                strPattern += "'" + fieldName + "' => '" + fieldLook.getPattern()  + "'";
+                isPatternLoop = true;
+            }
+
+            //必須 後に出力する為、保持します。
+            if (fieldLook.getFieldRequired() != null) {
+                if (fieldLook.getFieldRequired() == true){
+                    if (isFieldRequiredLoop) {
+                        strFieldRequired += ",\n" + strIndentBlank;
+                    }
+                    strFieldRequired += "'" + fieldName + "' => 'YES'";
+                    isFieldRequiredLoop = true;
+                }
+            }
+
+        }
+
+        if(strMinLength != ""){
+            createValidateMethod(
+                    strMinLength,
+                    "arrayMinLength",
+                    fBundle.getXml2sourceFileVgetarrayminlengthDescription(),
+                    BlancoRestPhpConstants.API_VGETARRAYMINLENGTH_METHOD,
+                    fBundle.getXml2sourceFileVgetarrayminlengthDescription()
+            );
+        }
+
+        if(strMaxLength != ""){
+            createValidateMethod(
+                    strMaxLength,
+                    "arrayMaxLength",
+                    fBundle.getXml2sourceFileVgetarraymaxlengthDescription(),
+                    BlancoRestPhpConstants.API_VGETARRAYMAXLENGTH_METHOD,
+                    fBundle.getXml2sourceFileVgetarraymaxlengthDescription()
+            );
+        }
+
+        if(strMinInclusive != ""){
+            createValidateMethod(
+                    strMinInclusive,
+                    "arrayMinInclusive",
+                    fBundle.getXml2sourceFileVgetarraymininclusiveDescription(),
+                    BlancoRestPhpConstants.API_VGETARRAYMININCLUSIVE_METHOD,
+                    fBundle.getXml2sourceFileVgetarraymininclusiveDescription()
+            );
+        }
+
+        if(strMaxInclusive != ""){
+            createValidateMethod(
+                    strMaxInclusive,
+                    "arrayMaxInclusive",
+                    fBundle.getXml2sourceFileVgetarraymaxinclusiveDescription(),
+                    BlancoRestPhpConstants.API_VGETARRAYMAXINCLUSIVE_METHOD,
+                    fBundle.getXml2sourceFileVgetarraymaxinclusiveDescription()
+            );
+        }
+
+        if(strPattern != ""){
+            createValidateMethod(
+                    strPattern,
+                    "arrayPattern",
+                    fBundle.getXml2sourceFileVgetarraypattarnDescription(),
+                    BlancoRestPhpConstants.API_VGETARRAYPATTARN_METHOD,
+                    fBundle.getXml2sourceFileVgetarraypattarnDescription()
+            );
+        }
+
+        if(strFieldRequired != ""){
+            createValidateMethod(
+                    strFieldRequired,
+                    "arrayFieldRequired",
+                    fBundle.getXml2sourceFileVgetarrayfieldrequiredDescription(),
+                    BlancoRestPhpConstants.API_VGETARRAYFIELDREQUIRED_METHOD,
+                    fBundle.getXml2sourceFileVgetarrayfieldrequiredDescription()
+            );
+        }
+
+    }
+
+
+    /**
+     * バリデートフィールドを展開します。
+     *
+     * @param strStackValue
+     * @param argName
+     * @param argFieldDescription
+     * @param methodNam
+     * @param strStackValue
+     */
+    private void createValidateMethod(
+            String strStackValue,
+            String argName,
+            String argFieldDescription,
+            String methodNam,
+            String argMethodDescription) {
+
+        String strIndentBlank = "        ";
+
+        //プロパティ部分
+        final BlancoCgField cgField = fCgFactory.createField(argName ,
+                "array", "");
+        fCgClass.getFieldList().add(cgField);
+        cgField.setAccess("protected");
+
+        cgField.getLangDoc().getDescriptionList().add(
+                argFieldDescription);
+
+        cgField.setDefault("array(\n" + strIndentBlank + strStackValue +")");
+
+        //メソッド部分
+        final BlancoCgMethod cgMethod = fCgFactory.createMethod(methodNam,argMethodDescription
+                );
+        fCgClass.getMethodList().add(cgMethod);
+        cgMethod.setAccess("public");
+
+        cgMethod.getLangDoc().getDescriptionList().add(
+                fBundle.getXml2sourceFileGetLangdoc02("array"));
+
+        cgMethod.setReturn(fCgFactory.createReturn("array", fBundle.getXml2sourceFileGetReturnLangdoc(methodNam)));
+
+        // メソッドの実装
+        final List<String> listLine = cgMethod.getLineList();
+
+        listLine
+                .add("return "
+                        + BlancoCgLineUtil.getVariablePrefix(fTargetLang)
+                        + "this->" + argName
+                        + BlancoCgLineUtil.getTerminator(fTargetLang));
+
     }
 
     /**
@@ -685,6 +896,30 @@ public class BlancoRestPhpXml2SourceFile {
             cgField.getLangDoc().getDescriptionList().add(
                     fieldLook.getDescription());
         }
+
+        if (fieldLook.getDefault() != null) {
+            if (fieldLook.getFieldType().equals("string")) {
+                // クオートを付与します。
+                cgField.setDefault(BlancoCgLineUtil
+                        .getStringLiteralEnclosure(fTargetLang)
+                        + BlancoJavaSourceUtil
+                        .escapeStringAsJavaSource(fieldLook
+                                .getDefault())
+                        + BlancoCgLineUtil
+                        .getStringLiteralEnclosure(fTargetLang));
+            } else if (fieldLook.getFieldType().equals("boolean")
+                    || fieldLook.getFieldType().equals("integer")
+                    || fieldLook.getFieldType().equals("float")
+                    || fieldLook.getFieldType().equals("double")) {
+                cgField.setDefault(fieldLook.getDefault());
+            } else {
+                throw new IllegalArgumentException(fBundle
+                        .getXml2sourceFileErr006(argProcessStructure.getName(),
+                                fieldLook.getName(), fieldLook.getDefault(),
+                                fieldLook.getFieldType()));
+            }
+        }
+
     }
 
     /**
