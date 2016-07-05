@@ -131,6 +131,10 @@ public class BlancoRestPhpXml2SourceFile {
     }
 
     private void processTelegramProcess(final File argDirectoryTarget, BlancoXmlElement elementRoot, List<BlancoRestPhpTelegram> argListTelegrams) {
+
+        //Commonプロパティブロックが見つかったかどうか
+        Boolean blnFoundElementCommon = false;
+
         // sheet(Excelシート)のリストを取得します。
         final List<BlancoXmlElement> listSheet = BlancoXmlBindingUtil
                 .getElementsByTagName(elementRoot, "sheet");
@@ -146,9 +150,11 @@ public class BlancoRestPhpXml2SourceFile {
                             .getMeta2xmlProcessCommon());
             if (elementCommon == null) {
                 // commonが無い場合には、このシートの処理をスキップします。
-                System.out.println("BlancoRestPhpXmlSourceFile#processTelegramProcess !!! NO COMMON !!!");
+                //System.out.println("BlancoRestPhpXmlSourceFile#processTelegramProcess !!! NO COMMON !!!");
                 continue;
             }
+            //プロパティブロックが見つかった場合
+            blnFoundElementCommon = true;
 
             final String name = BlancoXmlBindingUtil.getTextContent(
                     elementCommon, "name");
@@ -171,6 +177,9 @@ public class BlancoRestPhpXml2SourceFile {
                 process(structure, argListTelegrams, argDirectoryTarget);
             }
 
+        }
+        if(!blnFoundElementCommon){
+            System.out.println("BlancoRestPhpXmlSourceFile#processTelegramProcess !!! NOT ANY COMMON !!!");
         }
     }
 
@@ -211,6 +220,9 @@ public class BlancoRestPhpXml2SourceFile {
 
     private void processTelegram(final File argDirectoryTarget, BlancoXmlElement elementRoot, List<BlancoRestPhpTelegram> argListTelegrams) {
 
+        //Commonプロパティブロックが見つかったかどうか
+        Boolean blnFoundElementCommon = false;
+
         // sheet(Excelシート)のリストを取得します。
         final List<BlancoXmlElement> listSheet = BlancoXmlBindingUtil
                 .getElementsByTagName(elementRoot, "sheet");
@@ -226,9 +238,11 @@ public class BlancoRestPhpXml2SourceFile {
                             .getMeta2xmlTelegramCommon());
             if (elementCommon == null) {
                 // commonが無い場合には、このシートの処理をスキップします。
-                System.out.println("BlancoRestPhpXmlSourceFile#process !!! NO COMMON !!!");
+                //System.out.println("BlancoRestPhpXmlSourceFile#process !!! NO COMMON !!!");
                 continue;
             }
+            //プロパティブロックが見つかった場合
+            blnFoundElementCommon = true;
 
             final String name = BlancoXmlBindingUtil.getTextContent(
                     elementCommon, "name");
@@ -254,6 +268,9 @@ public class BlancoRestPhpXml2SourceFile {
                 process(processTelegram, argDirectoryTarget);
                 argListTelegrams.add(processTelegram);
             }
+        }
+        if(!blnFoundElementCommon){
+            System.out.println("BlancoRestPhpXmlSourceFile#process !!! NOT ANY COMMON !!!");
         }
     }
 
