@@ -109,6 +109,9 @@
                 <propertykey name="location" waitX="1">
                     <value>ロケーション</value>
                 </propertykey>
+                <propertykey name="slaveSearch" waitX="1">
+                    <value>スレーブ検索</value>
+                </propertykey>
             </propertyblock>
 
             <tableblock name="blancotelegramprocess-description" waitY="2" titleheight="2" rowname="line">

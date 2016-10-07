@@ -215,6 +215,11 @@ public class BlancoRestPhpXml2SourceFile {
         // System.out.println("#### noAuth = " + strNoAuthenticationRequired);
         structure.setNoAuthentication("YES".equalsIgnoreCase(strNoAuthenticationRequired));
 
+        String strSlaveSearchRequired = BlancoXmlBindingUtil.getTextContent(
+                argElementCommon, "slaveSearch");
+        // System.out.println("#### slaveSearch = " + strSlaveSearchRequired);
+        structure.setSlaveSearch("YES".equalsIgnoreCase(strSlaveSearchRequired));
+
         return structure;
     }
 
@@ -464,6 +469,9 @@ public class BlancoRestPhpXml2SourceFile {
         // ResponseId 名を取得する メソッド
         createResponseIdMethod(argStructure);
 
+        // isSlaveSearchRequired メソッドの上書き
+        overrideSlaveSearchRequired(argStructure);
+
         // required 文を出力しない ... 将来的には xls で指定するように？
         fCgSourceFile.setIsImport(false);
 
@@ -594,6 +602,28 @@ public class BlancoRestPhpXml2SourceFile {
 
         listLine.add("return " + "\"" + argStructure.getResponseId() + "\""
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
+    }
+
+    private void overrideSlaveSearchRequired(BlancoRestPhpTelegramProcess argStructure) {
+
+        String methodName = BlancoRestPhpConstants.API_SLAVESEARCH_REQUIRED;
+
+        final BlancoCgMethod cgSlaveSearchRequiredMethod = fCgFactory.createMethod(
+                methodName, fBundle.getXml2sourceFileAuthflagDescription());
+        fCgClass.getMethodList().add(cgSlaveSearchRequiredMethod);
+        cgSlaveSearchRequiredMethod.setAccess("protected");
+
+        // メソッドの実装
+        final List<String> listLine = cgSlaveSearchRequiredMethod.getLineList();
+
+        String retval = "false";
+        if (argStructure.getSlaveSearch()) {
+            retval = "true";
+        }
+
+        listLine.add("return " + retval
+                + BlancoCgLineUtil.getTerminator(fTargetLang));
+
     }
 
     /**
