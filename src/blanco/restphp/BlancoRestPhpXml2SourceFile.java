@@ -131,6 +131,10 @@ public class BlancoRestPhpXml2SourceFile {
     }
 
     private void processTelegramProcess(final File argDirectoryTarget, BlancoXmlElement elementRoot, List<BlancoRestPhpTelegram> argListTelegrams) {
+
+        //Commonプロパティブロックが見つかったかどうか
+        Boolean blnFoundElementCommon = false;
+
         // sheet(Excelシート)のリストを取得します。
         final List<BlancoXmlElement> listSheet = BlancoXmlBindingUtil
                 .getElementsByTagName(elementRoot, "sheet");
@@ -146,9 +150,11 @@ public class BlancoRestPhpXml2SourceFile {
                             .getMeta2xmlProcessCommon());
             if (elementCommon == null) {
                 // commonが無い場合には、このシートの処理をスキップします。
-                System.out.println("BlancoRestPhpXmlSourceFile#processTelegramProcess !!! NO COMMON !!!");
+                //System.out.println("BlancoRestPhpXmlSourceFile#processTelegramProcess !!! NO COMMON !!!");
                 continue;
             }
+            //プロパティブロックが見つかった場合
+            blnFoundElementCommon = true;
 
             final String name = BlancoXmlBindingUtil.getTextContent(
                     elementCommon, "name");
@@ -171,6 +177,9 @@ public class BlancoRestPhpXml2SourceFile {
                 process(structure, argListTelegrams, argDirectoryTarget);
             }
 
+        }
+        if(!blnFoundElementCommon){
+            System.out.println("BlancoRestPhpXmlSourceFile#processTelegramProcess !!! NOT ANY COMMON !!!");
         }
     }
 
@@ -206,10 +215,18 @@ public class BlancoRestPhpXml2SourceFile {
         // System.out.println("#### noAuth = " + strNoAuthenticationRequired);
         structure.setNoAuthentication("YES".equalsIgnoreCase(strNoAuthenticationRequired));
 
+        String strSlaveSearchRequired = BlancoXmlBindingUtil.getTextContent(
+                argElementCommon, "slaveSearch");
+        // System.out.println("#### slaveSearch = " + strSlaveSearchRequired);
+        structure.setSlaveSearch("YES".equalsIgnoreCase(strSlaveSearchRequired));
+
         return structure;
     }
 
     private void processTelegram(final File argDirectoryTarget, BlancoXmlElement elementRoot, List<BlancoRestPhpTelegram> argListTelegrams) {
+
+        //Commonプロパティブロックが見つかったかどうか
+        Boolean blnFoundElementCommon = false;
 
         // sheet(Excelシート)のリストを取得します。
         final List<BlancoXmlElement> listSheet = BlancoXmlBindingUtil
@@ -226,9 +243,11 @@ public class BlancoRestPhpXml2SourceFile {
                             .getMeta2xmlTelegramCommon());
             if (elementCommon == null) {
                 // commonが無い場合には、このシートの処理をスキップします。
-                System.out.println("BlancoRestPhpXmlSourceFile#process !!! NO COMMON !!!");
+                //System.out.println("BlancoRestPhpXmlSourceFile#process !!! NO COMMON !!!");
                 continue;
             }
+            //プロパティブロックが見つかった場合
+            blnFoundElementCommon = true;
 
             final String name = BlancoXmlBindingUtil.getTextContent(
                     elementCommon, "name");
@@ -254,6 +273,9 @@ public class BlancoRestPhpXml2SourceFile {
                 process(processTelegram, argDirectoryTarget);
                 argListTelegrams.add(processTelegram);
             }
+        }
+        if(!blnFoundElementCommon){
+            System.out.println("BlancoRestPhpXmlSourceFile#process !!! NOT ANY COMMON !!!");
         }
     }
 
@@ -447,6 +469,9 @@ public class BlancoRestPhpXml2SourceFile {
         // ResponseId 名を取得する メソッド
         createResponseIdMethod(argStructure);
 
+        // isSlaveSearchRequired メソッドの上書き
+        overrideSlaveSearchRequired(argStructure);
+
         // required 文を出力しない ... 将来的には xls で指定するように？
         fCgSourceFile.setIsImport(false);
 
@@ -577,6 +602,28 @@ public class BlancoRestPhpXml2SourceFile {
 
         listLine.add("return " + "\"" + argStructure.getResponseId() + "\""
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
+    }
+
+    private void overrideSlaveSearchRequired(BlancoRestPhpTelegramProcess argStructure) {
+
+        String methodName = BlancoRestPhpConstants.API_SLAVESEARCH_REQUIRED;
+
+        final BlancoCgMethod cgSlaveSearchRequiredMethod = fCgFactory.createMethod(
+                methodName, fBundle.getXml2sourceFileAuthflagDescription());
+        fCgClass.getMethodList().add(cgSlaveSearchRequiredMethod);
+        cgSlaveSearchRequiredMethod.setAccess("protected");
+
+        // メソッドの実装
+        final List<String> listLine = cgSlaveSearchRequiredMethod.getLineList();
+
+        String retval = "false";
+        if (argStructure.getSlaveSearch()) {
+            retval = "true";
+        }
+
+        listLine.add("return " + retval
+                + BlancoCgLineUtil.getTerminator(fTargetLang));
+
     }
 
     /**
