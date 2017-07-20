@@ -89,10 +89,10 @@
                     <value>説明</value>
                 </propertykey>
                 <propertykey name="telegramRequestId" waitX="1">
-                    <value>要求電文ID</value>
+                    <value>要求電文ID（POSTメソッド）</value>
                 </propertykey>
                 <propertykey name="telegramResponseId" waitX="1">
-                    <value>応答電文ID</value>
+                    <value>応答電文ID（POSTメソッド）</value>
                 </propertykey>
                 <propertykey name="noAuthentication" waitX="1">
                     <value>認証が不要なAPI</value>
