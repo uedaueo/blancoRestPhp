@@ -3,6 +3,7 @@ package blanco.restphp;
 import blanco.commons.util.BlancoStringUtil;
 import blanco.restphp.task.valueobject.BlancoRestPhpProcessInput;
 import blanco.valueobject.BlancoValueObjectConstants;
+import blanco.valueobjectphp.BlancoValueObjectPhpConstants;
 import blanco.valueobjectphp.resourcebundle.BlancoValueObjectPhpResourceBundle;
 import blanco.valueobjectphp.valueobject.BlancoValueObjectPhpFieldStructure;
 import blanco.valueobjectphp.valueobject.BlancoValueObjectPhpStructure;
@@ -47,8 +48,9 @@ public class BlancoRestPhpObjectsInfo {
 
         // XML化された中間ファイルから情報を読み込む
         final File[] fileMeta3 = new File(input.getTmpdir()
-                + BlancoValueObjectConstants.TARGET_SUBDIRECTORY)
+                + BlancoValueObjectPhpConstants.TARGET_SUBDIRECTORY)
                 .listFiles();
+
         for (int index = 0; index < fileMeta3.length; index++) {
             if (fileMeta3[index].getName().endsWith(".xml") == false) {
                 continue;
