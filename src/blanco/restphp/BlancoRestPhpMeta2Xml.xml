@@ -17,12 +17,14 @@
                 <propertykey name="superClass" waitX="2">
                     <value>電文の親クラス</value>
                 </propertykey>
-                <propertykey name="namespace" waitX="2">
+                <propertykey name="package" waitX="2">
                     <value>名前空間</value>
                 </propertykey>
+                <!--
                 <propertykey name="package" waitX="2">
                     <value>パッケージ</value>
                 </propertykey>
+                -->
 
                 <valuemapping>
                     <result>Input</result>
@@ -100,12 +102,14 @@
                 <propertykey name="webServiceId" waitX="1">
                     <value>ウェブサービスID</value>
                 </propertykey>
-                <propertykey name="telegramProcessNamespace" waitX="1">
+                <propertykey name="package" waitX="1">
                     <value>名前空間</value>
                 </propertykey>
+                <!--
                 <propertykey name="package" waitX="1">
                     <value>パッケージ</value>
                 </propertykey>
+                -->
                 <propertykey name="location" waitX="1">
                     <value>ロケーション</value>
                 </propertykey>
