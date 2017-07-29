@@ -115,13 +115,18 @@ public class BlancoRestPhpObjectsInfo {
                 continue;
             }
 
+            // 継承情報を取得します。
+            final BlancoXmlElement elementExtends = BlancoXmlBindingUtil
+                    .getElement(elementSheet, fBundle
+                            .getMeta2xmlElementExtends());
+
             // 一覧情報を取得します。
             final BlancoXmlElement elementList = BlancoXmlBindingUtil
                     .getElement(elementSheet, fBundle.getMeta2xmlElementList());
 
             // シートから詳細な情報を取得します。
             final BlancoValueObjectPhpStructure processStructure = parseSheet(
-                    elementCommon, elementList, argDirectoryTarget);
+                    elementCommon, elementExtends, elementList, argDirectoryTarget);
 
             if (processStructure != null) {
                 objects.put(name, processStructure);
@@ -142,7 +147,7 @@ public class BlancoRestPhpObjectsInfo {
      */
     private BlancoValueObjectPhpStructure parseSheet(
             final BlancoXmlElement argElementCommon,
-            final BlancoXmlElement argElementList, final File argDirectoryTarget) {
+            BlancoXmlElement argElementExtends, final BlancoXmlElement argElementList, final File argDirectoryTarget) {
 
         final BlancoValueObjectPhpStructure processStructure = new BlancoValueObjectPhpStructure();
         processStructure.setName(BlancoXmlBindingUtil.getTextContent(
@@ -166,6 +171,20 @@ public class BlancoRestPhpObjectsInfo {
                 "fileDescription") != null) {
             processStructure.setFileDescription(BlancoXmlBindingUtil
                     .getTextContent(argElementCommon, "fileDescription"));
+        }
+
+        if (argElementExtends != null) {
+            String name = BlancoXmlBindingUtil
+                    .getTextContent(argElementExtends, "superClass");
+            String mypackage = BlancoXmlBindingUtil
+                    .getTextContent(argElementExtends, "package");
+            if (name != null) {
+                String namespace = name;
+                if (mypackage != null) {
+                    namespace = mypackage + "\\" + namespace;
+                }
+                processStructure.setExtends(namespace);
+            }
         }
 
         if (argElementList == null) {
