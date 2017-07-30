@@ -21,6 +21,7 @@ import blanco.restphp.resourcebundle.BlancoRestPhpResourceBundle;
 import blanco.restphp.valueobject.BlancoRestPhpTelegram;
 import blanco.restphp.valueobject.BlancoRestPhpTelegramField;
 import blanco.restphp.valueobject.BlancoRestPhpTelegramProcess;
+import blanco.valueobject.resourcebundle.BlancoValueObjectResourceBundle;
 import blanco.xml.bind.BlancoXmlBindingUtil;
 import blanco.xml.bind.BlancoXmlUnmarshaller;
 import blanco.xml.bind.valueobject.BlancoXmlDocument;
@@ -167,10 +168,15 @@ public class BlancoRestPhpXml2SourceFile {
 
             System.out.println("BlancoRestPhpXmlSourceFile#processTelegramProcess name = " + name);
 
+            // 継承情報を取得します
+            final BlancoXmlElement elementExtends = BlancoXmlBindingUtil
+                    .getElement(elementSheet, fBundle.getMeta2xmlProcessExtends());
+
             // 電文処理には一覧情報はありません
 
             // シートから詳細な情報を取得します。
-            final BlancoRestPhpTelegramProcess structure = parseProcessSheet(elementCommon);
+            final BlancoRestPhpTelegramProcess structure = parseProcessSheet(elementCommon, elementExtends);
+//            System.out.println("requestId = " + structure.getRequestId());
 
             if (structure != null) {
                 // メタ情報の解析結果をもとにソースコード自動生成を実行します。
@@ -183,13 +189,17 @@ public class BlancoRestPhpXml2SourceFile {
         }
     }
 
-    private BlancoRestPhpTelegramProcess parseProcessSheet(final BlancoXmlElement argElementCommon) {
+    private BlancoRestPhpTelegramProcess parseProcessSheet(final BlancoXmlElement argElementCommon, final BlancoXmlElement argElementExtends) {
 
         final BlancoRestPhpTelegramProcess structure = new BlancoRestPhpTelegramProcess();
         structure.setName(BlancoXmlBindingUtil.getTextContent(
                 argElementCommon, "name"));
-        structure.setPackage(BlancoXmlBindingUtil.getTextContent(
-                argElementCommon, "package"));
+
+        String namespace = BlancoXmlBindingUtil.getTextContent(argElementCommon,"package");
+        if (namespace == null) {
+            namespace = "";
+        }
+        structure.setPackage(namespace);
 
         if (BlancoStringUtil.null2Blank(structure.getPackage()).trim()
                 .length() == 0) {
@@ -202,7 +212,7 @@ public class BlancoRestPhpXml2SourceFile {
             structure.setDescription(BlancoXmlBindingUtil
                     .getTextContent(argElementCommon, "description"));
         }
-
+//        System.out.println("### requestId = " + BlancoXmlBindingUtil.getTextContent(argElementCommon, "telegramRequestId"));
         structure.setRequestId(BlancoXmlBindingUtil.getTextContent(argElementCommon, "telegramRequestId"));
         structure.setResponseId(BlancoXmlBindingUtil.getTextContent(argElementCommon, "telegramResponseId"));
         structure.setLocation(BlancoXmlBindingUtil.getTextContent(argElementCommon, "location"));
@@ -219,6 +229,21 @@ public class BlancoRestPhpXml2SourceFile {
                 argElementCommon, "slaveSearch");
         // System.out.println("#### slaveSearch = " + strSlaveSearchRequired);
         structure.setSlaveSearch("YES".equalsIgnoreCase(strSlaveSearchRequired));
+
+        // 継承情報を取得します。
+        String superClass = BlancoRestPhpConstants.BASE_CLASS;
+        if (argElementExtends != null) {
+            superClass = BlancoXmlBindingUtil.getTextContent(argElementExtends, "superClass");
+            if (superClass == null) {
+                superClass = BlancoRestPhpConstants.BASE_CLASS;
+            } else {
+                String extendsNamespace = BlancoXmlBindingUtil.getTextContent(argElementExtends, "package");
+                if (extendsNamespace != null) {
+                    superClass = extendsNamespace + "\\" + superClass;
+                }
+            }
+        }
+        structure.setSuperClass(superClass);
 
         return structure;
     }
@@ -260,13 +285,19 @@ public class BlancoRestPhpXml2SourceFile {
 
             System.out.println("BlancoRestPhpXmlSourceFile#process name = " + name);
 
+            // 継承情報を取得します
+            final BlancoXmlElement elementExtends = BlancoXmlBindingUtil
+                    .getElement(elementSheet, fBundle.getMeta2xmlTelegramExtends());
+
+
+
             // 一覧情報を取得します。
             final BlancoXmlElement elementList = BlancoXmlBindingUtil
                     .getElement(elementSheet, fBundle.getMeta2xmlTeregramList());
 
             // シートから詳細な情報を取得します。
             final BlancoRestPhpTelegram processTelegram = parseTelegramSheet(
-                    elementCommon, elementList);
+                    elementCommon, elementExtends, elementList);
 
             if (processTelegram != null) {
                 // メタ情報の解析結果をもとにソースコード自動生成を実行します。
@@ -290,13 +321,17 @@ public class BlancoRestPhpXml2SourceFile {
      */
     private BlancoRestPhpTelegram parseTelegramSheet(
             final BlancoXmlElement argElementCommon,
+            final BlancoXmlElement argElementExtends,
             final BlancoXmlElement argElementList) {
 
         final BlancoRestPhpTelegram processTelegram = new BlancoRestPhpTelegram();
         processTelegram.setName(BlancoXmlBindingUtil.getTextContent(
                 argElementCommon, "name"));
-        processTelegram.setPackage(BlancoXmlBindingUtil.getTextContent(
-                argElementCommon, "package"));
+        String namespace = BlancoXmlBindingUtil.getTextContent(argElementCommon,"package");
+        if (namespace == null) {
+            namespace = "";
+        }
+        processTelegram.setPackage(namespace);
 
         if (BlancoStringUtil.null2Blank(processTelegram.getPackage()).trim()
                 .length() == 0) {
@@ -316,8 +351,27 @@ public class BlancoRestPhpXml2SourceFile {
         processTelegram.setTelegramType(BlancoXmlBindingUtil.getTextContent(
                 argElementCommon, "type"));
 
-        processTelegram.setTelegramSuperClass(BlancoXmlBindingUtil.getTextContent(
-                argElementCommon, "superClass"));
+        // 継承情報を取得します。
+
+        if (argElementExtends != null) {
+            String superClass = BlancoXmlBindingUtil.getTextContent(argElementExtends, "superClass");
+            if (superClass == null) {
+                if (BlancoRestPhpConstants.TELEGRAM_TYPE_INPUT.equalsIgnoreCase(processTelegram.getTelegramType())) {
+                    throw new IllegalArgumentException(fBundle.getXml2sourceFileRequestidNosuperclass(processTelegram.getName()));
+                } else {
+                    throw new IllegalArgumentException(fBundle.getXml2sourceFileResponseidNosuperclass(processTelegram.getName()));
+                }
+            } else {
+                String extendsNamespace = BlancoXmlBindingUtil.getTextContent(argElementExtends, "package");
+                if (extendsNamespace != null) {
+                    superClass = extendsNamespace + "\\" + superClass;
+                }
+            }
+            processTelegram.setTelegramSuperClass(superClass);
+        } else {
+            processTelegram.setTelegramSuperClass(BlancoXmlBindingUtil.getTextContent(
+                    argElementCommon, "superClass"));
+        }
 
         if (argElementList == null) {
             return null;
@@ -440,7 +494,7 @@ public class BlancoRestPhpXml2SourceFile {
                         .getDescription()));
         // ApiBase クラスを継承
         BlancoCgType fCgType = new BlancoCgType();
-        fCgType.setName(BlancoRestPhpConstants.BASE_CLASS);
+        fCgType.setName(argStructure.getSuperClass());
         fCgClass.setExtendClassList(new ArrayList<BlancoCgType>());
         fCgClass.getExtendClassList().add(fCgType);
 
@@ -457,6 +511,8 @@ public class BlancoRestPhpXml2SourceFile {
         // API実装クラスで実装させる abstract method の定義
         createAbstractMethod(argStructure);
 
+
+//        System.out.println("requestId = " + argStructure.getRequestId());
         // base class からの abstract method の実装
         createExecuteMethod(argStructure, argListTelegrams);
 
@@ -522,13 +578,22 @@ public class BlancoRestPhpXml2SourceFile {
         for (BlancoRestPhpTelegram telegram : argListTelegrams) {
 //            System.out.println("### type = " + telegram.getTelegramType());
             if ("Input".equals(telegram.getTelegramType())) {
-                requestId = telegram.getTelegramSuperClass();
+                String anoRequestId = telegram.getTelegramSuperClass();
+                if (anoRequestId == null) {
+                    throw new IllegalArgumentException(fBundle.getXml2sourceFileRequestidNosuperclass(requestId));
+                }
+                requestId = anoRequestId;
             }
             if ("Output".equals(telegram.getTelegramType())) {
-                responseId = telegram.getTelegramSuperClass();
+                String anoResponseId = telegram.getTelegramSuperClass();
+                if (anoResponseId == null) {
+                    throw new IllegalArgumentException(fBundle.getXml2sourceFileResponseidNosuperclass(responseId));
+                }
+                responseId = anoResponseId;
             }
         }
 
+//        System.out.println("### requestId = " + requestId);
         cgExecutorMethod.getParameterList().add(
                 fCgFactory.createParameter("arg" + requestId, requestId,
                         fBundle

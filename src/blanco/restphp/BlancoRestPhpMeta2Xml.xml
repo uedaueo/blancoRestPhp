@@ -14,11 +14,9 @@
                 <propertykey name="type" waitX="2">
                     <value>電文種類</value>
                 </propertykey>
-                <!--
                 <propertykey name="superClass" waitX="2">
                     <value>電文の親クラス</value>
                 </propertykey>
-                -->
                 <propertykey name="package" waitX="2">
                     <value>名前空間</value>
                 </propertykey>
