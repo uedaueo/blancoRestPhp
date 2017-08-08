@@ -364,7 +364,8 @@ public class BlancoRestPhpXml2SourceFile {
             } else {
                 String extendsNamespace = BlancoXmlBindingUtil.getTextContent(argElementExtends, "package");
                 if (extendsNamespace != null) {
-                    superClass = extendsNamespace + "\\" + superClass;
+//                    superClass = extendsNamespace + "\\" + superClass;
+                    processTelegram.setPackageSuperClass(extendsNamespace);
                 }
             }
             processTelegram.setTelegramSuperClass(superClass);
@@ -509,7 +510,7 @@ public class BlancoRestPhpXml2SourceFile {
         }
 
         // API実装クラスで実装させる abstract method の定義
-        createAbstractMethod(argStructure);
+        createAbstractMethod(argStructure, argListTelegrams);
 
 
 //        System.out.println("requestId = " + argStructure.getRequestId());
@@ -520,10 +521,10 @@ public class BlancoRestPhpXml2SourceFile {
         overrideAuthenticationRequired(argStructure);
 
         // RequestId 名を取得する メソッド
-        createRequestIdMethod(argStructure);
+        createRequestIdMethod(argStructure, argListTelegrams);
 
         // ResponseId 名を取得する メソッド
-        createResponseIdMethod(argStructure);
+        createResponseIdMethod(argStructure, argListTelegrams);
 
         // isSlaveSearchRequired メソッドの上書き
         overrideSlaveSearchRequired(argStructure);
@@ -535,7 +536,7 @@ public class BlancoRestPhpXml2SourceFile {
                 fCgSourceFile, fileBlancoMain);
     }
 
-    private void createAbstractMethod(BlancoRestPhpTelegramProcess argStructure) {
+    private void createAbstractMethod(BlancoRestPhpTelegramProcess argStructure, List<BlancoRestPhpTelegram>  argListTelegrams) {
 
         // Initializer の定義
 //        final BlancoCgMethod cgInitializerMethod = fCgFactory.createMethod(
@@ -553,13 +554,38 @@ public class BlancoRestPhpXml2SourceFile {
         cgProcessorMethod.setAbstract(true);
 
         String requestId = argStructure.getRequestId();
+        String requestIdPackage = null;
         String responseId = argStructure.getResponseId();
+        String responseIdPackage = null;
+
+        for (BlancoRestPhpTelegram telegram : argListTelegrams) {
+//            System.out.println("### type = " + telegram.getTelegramType());
+            if ("Input".equals(telegram.getTelegramType())) {
+                String anoRequestId = telegram.getName();
+                if (anoRequestId == null) {
+                    throw new IllegalArgumentException(fBundle.getXml2sourceFileRequestidNosuperclass(requestId));
+                }
+                requestId = anoRequestId;
+                requestIdPackage = telegram.getPackage();
+            }
+            if ("Output".equals(telegram.getTelegramType())) {
+                String anoResponseId = telegram.getName();
+                if (anoResponseId == null) {
+                    throw new IllegalArgumentException(fBundle.getXml2sourceFileResponseidNosuperclass(responseId));
+                }
+                responseId = anoResponseId;
+                responseIdPackage = telegram.getPackage();
+            }
+        }
+
+        String fullRequestId = requestIdPackage == null ? requestId : requestIdPackage + "\\" + requestId;
+        String fullResponseId = responseIdPackage == null ? responseId : responseIdPackage + "\\" + responseId;
 
         cgProcessorMethod.getParameterList().add(
-                fCgFactory.createParameter("arg" + requestId, requestId,
+                fCgFactory.createParameter("arg" + requestId, fullRequestId,
                         fBundle.getXml2sourceFileProsessorArgLangdoc()));
 
-        cgProcessorMethod.setReturn(fCgFactory.createReturn(responseId,
+        cgProcessorMethod.setReturn(fCgFactory.createReturn(fullResponseId,
                 fBundle.getXml2sourceFileProsessorReturnLangdoc()));
 
     }
@@ -574,7 +600,9 @@ public class BlancoRestPhpXml2SourceFile {
          * 型チェックを通す為にSuperClassがある場合はそれを使います
          */
         String requestId = argStructure.getRequestId();
+        String requestIdPackage = null;
         String responseId = argStructure.getResponseId();
+        String responseIdPackage = null;
         for (BlancoRestPhpTelegram telegram : argListTelegrams) {
 //            System.out.println("### type = " + telegram.getTelegramType());
             if ("Input".equals(telegram.getTelegramType())) {
@@ -583,6 +611,7 @@ public class BlancoRestPhpXml2SourceFile {
                     throw new IllegalArgumentException(fBundle.getXml2sourceFileRequestidNosuperclass(requestId));
                 }
                 requestId = anoRequestId;
+                requestIdPackage = telegram.getPackageSuperClass();
             }
             if ("Output".equals(telegram.getTelegramType())) {
                 String anoResponseId = telegram.getTelegramSuperClass();
@@ -590,16 +619,20 @@ public class BlancoRestPhpXml2SourceFile {
                     throw new IllegalArgumentException(fBundle.getXml2sourceFileResponseidNosuperclass(responseId));
                 }
                 responseId = anoResponseId;
+                responseIdPackage = telegram.getPackageSuperClass();
             }
         }
 
-//        System.out.println("### requestId = " + requestId);
+        String fullReqeustId = requestIdPackage == null ? requestId : requestIdPackage + "\\" + requestId;
+        String fullResponseId = responseIdPackage == null ? responseId : responseIdPackage + "\\" + responseId;
+
+        //        System.out.println("### requestId = " + requestId);
         cgExecutorMethod.getParameterList().add(
-                fCgFactory.createParameter("arg" + requestId, requestId,
+                fCgFactory.createParameter("arg" + requestId, fullReqeustId,
                         fBundle
                                 .getXml2sourceFileExecutorArgLangdoc()));
 
-        cgExecutorMethod.setReturn(fCgFactory.createReturn(responseId,
+        cgExecutorMethod.setReturn(fCgFactory.createReturn(fullResponseId,
                 fBundle.getXml2sourceFileExecutorReturnLangdoc()));
 
         // メソッドの実装
@@ -637,7 +670,7 @@ public class BlancoRestPhpXml2SourceFile {
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
 
-    private void createRequestIdMethod(BlancoRestPhpTelegramProcess argStructure) {
+    private void createRequestIdMethod(BlancoRestPhpTelegramProcess argStructure, List<BlancoRestPhpTelegram>  argListTelegrams) {
         String methodName = BlancoRestPhpConstants.API_REQUESTID_METHOD;
 
         final BlancoCgMethod cgResponseIdMethod = fCgFactory.createMethod(
@@ -648,12 +681,28 @@ public class BlancoRestPhpXml2SourceFile {
         // メソッドの実装
         final List<String> listLine = cgResponseIdMethod.getLineList();
 
+        String requestId = argStructure.getRequestId();
+        String requestIdPackage = null;
 
-        listLine.add("return " + "\"" + argStructure.getRequestId() + "\""
+        for (BlancoRestPhpTelegram telegram : argListTelegrams) {
+//            System.out.println("### type = " + telegram.getTelegramType());
+            if ("Input".equals(telegram.getTelegramType())) {
+                String anoRequestId = telegram.getName();
+                if (anoRequestId == null) {
+                    throw new IllegalArgumentException(fBundle.getXml2sourceFileRequestidNosuperclass(requestId));
+                }
+                requestId = anoRequestId;
+                requestIdPackage = telegram.getPackage();
+            }
+        }
+
+        String fullReqeustId = requestIdPackage == null ? requestId : requestIdPackage + "\\" + requestId;
+
+        listLine.add("return " + "\"" + fullReqeustId + "\""
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
 
-    private void createResponseIdMethod(BlancoRestPhpTelegramProcess argStructure) {
+    private void createResponseIdMethod(BlancoRestPhpTelegramProcess argStructure, List<BlancoRestPhpTelegram>  argListTelegrams) {
         String methodName = BlancoRestPhpConstants.API_RESPONSE_METHOD;
 
         final BlancoCgMethod cgResponseIdMethod = fCgFactory.createMethod(
@@ -664,8 +713,24 @@ public class BlancoRestPhpXml2SourceFile {
         // メソッドの実装
         final List<String> listLine = cgResponseIdMethod.getLineList();
 
+        String responseId = argStructure.getResponseId();
+        String responseIdPackage = null;
 
-        listLine.add("return " + "\"" + argStructure.getResponseId() + "\""
+        for (BlancoRestPhpTelegram telegram : argListTelegrams) {
+//            System.out.println("### type = " + telegram.getTelegramType());
+            if ("Output".equals(telegram.getTelegramType())) {
+                String anoResponseId = telegram.getName();
+                if (anoResponseId == null) {
+                    throw new IllegalArgumentException(fBundle.getXml2sourceFileResponseidNosuperclass(responseId));
+                }
+                responseId = anoResponseId;
+                responseIdPackage = telegram.getPackage();
+            }
+        }
+
+        String fullResponseId = responseIdPackage == null ? responseId : responseIdPackage + "\\" + responseId;
+
+        listLine.add("return " + "\"" + fullResponseId + "\""
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
 
@@ -718,8 +783,12 @@ public class BlancoRestPhpXml2SourceFile {
 
         // ApiTelegram クラスを継承
         String telegramBase = argStructure.getTelegramSuperClass();
+        String telegramBasePackage = argStructure.getPackageSuperClass();
         if (telegramBase != null) {
             BlancoCgType fCgType = new BlancoCgType();
+            if (telegramBasePackage != null) {
+                telegramBase = telegramBasePackage + "\\" + telegramBase;
+            }
             fCgType.setName(telegramBase);
 
             fCgClass.setExtendClassList(new ArrayList<BlancoCgType>());
