@@ -730,6 +730,8 @@ public class BlancoRestPhpXml2SourceFile {
 
         String fullResponseId = responseIdPackage == null ? responseId : responseIdPackage + "\\" + responseId;
 
+        fullResponseId = fullResponseId.replace("\\", "\\\\");
+
         listLine.add("return " + "\"" + fullResponseId + "\""
                 + BlancoCgLineUtil.getTerminator(fTargetLang));
     }
